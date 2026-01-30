@@ -1,20 +1,17 @@
-import nodemailer from "nodemailer";
+import sgMail from "@sendgrid/mail";
 
-export const sendEmail = async (to, subject, html) => {
-  const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
-    secure: false,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
-  });
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-  await transporter.sendMail({
-    from: `"Kenya E-Campaign Platform 🇰🇪" <${process.env.EMAIL_USER}>`,
-    to,
-    subject,
-    html
-  });
-};
+export async function sendEmail(to, subject, html) {
+  try {
+    await sgMail.send({
+      to,
+      from: process.env.MAIL_FROM,
+      subject,
+      html,
+    });
+  } catch (err) {
+    console.error("Email error:", err.response?.body || err.message);
+    throw new Error("Email failed");
+  }
+}
