@@ -127,7 +127,7 @@ app.post("/verify-email", async (req, res) => {
   await supabase.from("users").update({
     email_verified: true,
     verify_code: null,
-    verify_code_expires: null
+    verification_code_expires: null
   }).eq("email", email);
 
   res.json({ success: true });
