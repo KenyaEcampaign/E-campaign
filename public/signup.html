@@ -110,16 +110,21 @@ function signup() {
   })
   .then(res => res.json())
   .then(data => {
-    if (data.error) alert(data.error);
-    else {
-      alert("Welcome! Please log in.");
-      window.location.href = "login.html";
+    if (data.error) {
+      alert(data.error);
+      return;
     }
-  });
-  localStorage.setItem("pendingEmail", email.value);
-window.location.href = "verify.html";
 
+    // ✅ save email FIRST
+    localStorage.setItem("pendingEmail", email.value);
+
+    alert("Verification code sent to your email");
+    window.location.href = "verify.html";
+  })
+  .catch(() => alert("Network error"));
 }
+</script>
+
 </script>
 
 </body>

@@ -76,60 +76,61 @@ app.get('/test-db', async (req, res) => {
 app.post("/register", async (req, res) => {
   const { username, email, password, role } = req.body;
 
-  const hashed = await bcrypt.hash(password, 10);
-  const token = crypto.randomBytes(32).toString("hex");
+  const password_hash = await bcrypt.hash(password, 10);
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-  const { data, error } = await supabase
-    .from("users")
-    .insert([{
-      username,
-      email,
-      password: hashed,
-      role,
-      verified: false,
-      verify_token: token
-    }])
-    .select()
-    .single();
+  const { error } = await supabase.from("users").insert([{
+    username,
+    email,
+    password_hash,
+    role,
+    email_verified: false,
+    verify_code: code,
+    verify_code_expires: new Date(Date.now() + 15 * 60 * 1000)
+  }]);
 
   if (error) {
     return res.status(400).json({ error: error.message });
   }
 
-  const verifyLink =
-    `https://e-campaign.onrender.com/verify?token=${token}`;
-
   await sendEmail(
     email,
-    "Verify your E-Campaign account 🇰🇪",
+    "Verify your Kenya E-Campaign account 🇰🇪",
     `
       <h3>Welcome to Kenya E-Campaign Platform</h3>
-      <p>Click the link below to verify your account:</p>
-      <a href="${verifyLink}">${verifyLink}</a>
+      <p>Your verification code is:</p>
+      <h2>${code}</h2>
+      <p>This code expires in 15 minutes.</p>
     `
   );
 
   res.json({ success: true });
 });
 
-app.get("/verify", async (req, res) => {
-  const { token } = req.query;
+app.post("/verify-email", async (req, res) => {
+  const { email, code } = req.body;
 
-  const { data, error } = await supabase
+  const { data: user } = await supabase
     .from("users")
-    .update({
-      verified: true,
-      verify_token: null
-    })
-    .eq("verify_token", token)
-    .select()
+    .select("*")
+    .eq("email", email)
     .single();
 
-  if (error || !data) {
-    return res.status(400).send("Invalid or expired verification link");
+  if (
+    !user ||
+    user.verify_code !== code ||
+    new Date() > new Date(user.verify_code_expires)
+  ) {
+    return res.status(400).json({ error: "Invalid or expired code" });
   }
 
-  res.redirect("/login.html");
+  await supabase.from("users").update({
+    email_verified: true,
+    verify_code: null,
+    verify_code_expires: null
+  }).eq("email", email);
+
+  res.json({ success: true });
 });
 
 
@@ -160,14 +161,11 @@ app.post('/login', async (req, res) => {
     }
 
     // Compare passwords
-    const passwordMatch = await bcrypt.compare(
-      password,
-      user.password_hash
-    );
+  const passwordMatch = await bcrypt.compare(password, user.password_hash);
 
-    if (!passwordMatch) {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
+if (!passwordMatch) {
+  return res.status(401).json({ error: "Invalid email or password" });
+}
 
 if (!user.email_verified) {
   return res.json({ error: "Please verify your email first" });
@@ -190,21 +188,37 @@ if (!user.email_verified) {
 });
 
 app.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
   const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+  const { data: user } = await supabase
+    .from("users")
+    .select("id")
+    .eq("email", email)
+    .single();
+
+  if (!user) {
+    return res.json({ error: "Email not found" });
+  }
 
   await supabase.from("users").update({
     reset_code: code,
     reset_code_expires: new Date(Date.now() + 15 * 60 * 1000)
-  }).eq("email", req.body.email);
+  }).eq("email", email);
 
   await sendEmail(
-    req.body.email,
-    "Reset your Civic Ground password",
-    `<h3>Your reset code:</h3><h2>${code}</h2>`
+    email,
+    "Reset your Kenya E-Campaign password 🇰🇪",
+    `
+      <p>Your reset code:</p>
+      <h2>${code}</h2>
+      <p>Expires in 15 minutes.</p>
+    `
   );
 
   res.json({ success: true });
 });
+
 
 app.post("/reset-password", async (req, res) => {
   const { email, code, password } = req.body;

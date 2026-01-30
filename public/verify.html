@@ -75,6 +75,14 @@ function verify() {
   });
 }
 </script>
+<script>
+const email = localStorage.getItem("pendingEmail");
+if (!email) {
+  alert("No email to verify. Please sign up again.");
+  window.location.href = "signup.html";
+}
+</script>
+
 
 </body>
 </html>
