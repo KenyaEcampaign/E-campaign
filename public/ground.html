@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ground Updates</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #eef1f5;
+      padding: 20px;
+    }
+    .box {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      max-width: 800px;
+      margin: auto;
+    }
+    textarea, input, select {
+      width: 100%;
+      margin-top: 8px;
+      padding: 8px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: #2ecc71;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .update {
+      background: #fafafa;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 12px;
+    }
+    .meta {
+      font-size: 12px;
+      color: #555;
+    }
+    .tag {
+      background: #ddd;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-right: 5px;
+    }
+    .actions button {
+      background: #3498db;
+      margin-right: 5px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>📍 Ground Updates</h2>
+
+  <input id="location" placeholder="Location (e.g. Kibra, Nairobi)">
+  
+  <select id="category">
+    <option value="">-- Select Category --</option>
+    <option value="Rally">Rally</option>
+    <option value="Violence">Violence</option>
+    <option value="Intimidation">Intimidation</option>
+    <option value="Peace">Peace</option>
+    <option value="Voting Process">Voting Process</option>
+    <option value="Police Presence">Police Presence</option>
+    <option value="Other">Other</option>
+  </select>
+
+  <textarea id="content" placeholder="What is happening on the ground?"></textarea>
+
+  <button onclick="postUpdate()">Post Update</button>
+  <button onclick="goHome()">🏠 Home</button>
+
+  <hr>
+  <div id="updates"></div>
+</div>
+
+<script>
+const API = "http://localhost:3000";
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!user) {
+  window.location.href = "login.html";
+}
+
+function goHome() {
+  window.location.href = "home.html";
+}
+
+/* ======================
+   POST UPDATE
+====================== */
+function postUpdate() {
+  const loc = document.getElementById("location").value.trim();
+  const text = document.getElementById("content").value.trim();
+  const category = document.getElementById("category").value;
+
+  if (!loc || !text || !category) {
+    alert("Please fill in all fields");
+    return;
+  }
+
+  fetch(API + "/ground-updates", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_id: user.id,
+      location: loc,
+      category: category,
+      content: text
+    })
+  })
+  .then(res => res.json())
+  .then(() => {
+    document.getElementById("content").value = "";
+    loadUpdates();
+  })
+  .catch(() => alert("Network error"));
+}
+
+/* ======================
+   LOAD UPDATES
+====================== */
+function loadUpdates() {
+  fetch(API + "/ground-updates")
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById("updates");
+      container.innerHTML = "";
+
+      data.forEach(u => {
+        const div = document.createElement("div");
+        div.className = "update";
+
+        div.innerHTML = `
+          <div class="meta">
+            <span class="tag">${u.category}</span>
+            📍 ${u.location} · 👤 ${u.users?.username || "Anonymous"}
+            · ⏱ ${new Date(u.created_at).toLocaleTimeString()}
+          </div>
+
+          <div>${u.content}</div>
+
+          <div class="actions">
+  <button onclick="likeGround('${u.id}')">
+    👍 Like (${u.ground_likes?.[0]?.count || 0})
+  </button>
+
+  <button onclick="showCommentBox('${u.id}')">
+    💬 Comment (${u.ground_comments?.[0]?.count || 0})
+  </button>
+
+  <button onclick="repostGround('${u.id}')">
+    🔁 Repost (${u.ground_reposts?.[0]?.count || 0})
+  </button>
+</div>
+
+
+          <div id="comment-box-${u.id}" style="display:none;">
+            <textarea placeholder="Write a comment..."></textarea>
+            <button onclick="sendGroundComment('${u.id}')">Send</button>
+          </div>
+
+          <div id="comments-${u.id}"></div>
+        `;
+
+        container.appendChild(div);
+      });
+    });
+}
+
+/* ======================
+   INTERACTIONS
+====================== */
+function likeGround(id) {
+  fetch(API + "/ground-like", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ user_id: user.id, ground_id: id })
+  });
+}
+
+function repostGround(id) {
+  fetch(API + "/ground-repost", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ user_id: user.id, ground_id: id })
+  }).then(() => {
+    alert("Reposted 🔁");
+    loadUpdates();
+  });
+}
+
+function showCommentBox(id) {
+  document.getElementById("comment-box-" + id).style.display = "block";
+  loadGroundComments(id);
+}
+
+function sendGroundComment(id) {
+  const box = document.querySelector(`#comment-box-${id} textarea`);
+  if (!box.value.trim()) return;
+
+  fetch(API + "/ground-comment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_id: user.id,
+      ground_id: id,
+      content: box.value
+    })
+  })
+  .then(() => {
+    box.value = "";
+    loadGroundComments(id);
+  });
+}
+
+function loadGroundComments(id) {
+  fetch(API + "/ground-comments/" + id)
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById("comments-" + id);
+      container.innerHTML = "";
+
+      data.forEach(c => {
+        const p = document.createElement("p");
+        p.innerHTML = `<strong>@${c.users?.username || "user"}</strong>: ${c.content}`;
+        container.appendChild(p);
+      });
+    });
+}
+
+/* ======================
+   AUTO LOAD
+====================== */
+loadUpdates();
+setInterval(loadUpdates, 5000);
+</script>
+
+</body>
+</html>

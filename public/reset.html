@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reset Password</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #0b8457, #1dd1a1);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: #fff;
+      padding: 30px;
+      width: 340px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    h2 {
+      color: #0b8457;
+      margin-bottom: 10px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #0b8457;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>🔐 Reset Password</h2>
+  <p>Enter the code sent to your email</p>
+
+  <input id="code" placeholder="Reset code">
+  <input id="pass" type="password" placeholder="New password">
+  <input id="confirm" type="password" placeholder="Confirm password">
+
+  <button onclick="reset()">Reset Password</button>
+</div>
+
+<script>
+function reset() {
+  if (pass.value !== confirm.value) {
+    return alert("Passwords do not match");
+  }
+
+  fetch("http://localhost:3000/reset-password", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      email: localStorage.getItem("resetEmail"),
+      code: code.value,
+      password: pass.value
+    })
+  })
+  .then(res => res.json())
+  .then(r => {
+    if (r.error) alert(r.error);
+    else {
+      alert("Password reset successful");
+      localStorage.removeItem("resetEmail");
+      window.location.href = "login.html";
+    }
+  });
+}
+</script>
+
+</body>
+</html>

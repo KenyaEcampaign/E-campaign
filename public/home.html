@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Civic Ground 🇰🇪</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f4f6f8;
+  color: #222;
+}
+
+header {
+  background: url("3dflag.jpg") center/cover no-repeat;
+  color: white;
+  padding: 70px 20px;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 3em;
+  margin-bottom: 10px;
+}
+
+header p {
+  max-width: 800px;
+  margin: auto;
+  font-size: 1.2em;
+  background: rgba(0,0,0,0.5);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+nav {
+  margin-top: 25px;
+}
+
+nav button {
+  margin: 6px;
+  padding: 12px 22px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: bold;
+  background: white;
+}
+
+section {
+  padding: 60px 20px;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
+  gap: 30px;
+  align-items: center;
+}
+
+.split img {
+  width: 100%;
+  border-radius: 15px;
+}
+
+h2 {
+  color: #006400;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.cta {
+  background: #000;
+  color: white;
+  text-align: center;
+  padding: 70px 20px;
+}
+
+.cta button {
+  padding: 14px 30px;
+  font-size: 16px;
+  border-radius: 30px;
+  border: none;
+  background: #bb0000;
+  color: white;
+  cursor: pointer;
+}
+
+footer {
+  background: #eee;
+  text-align: center;
+  padding: 20px;
+  font-size: 13px;
+}
+
+a {
+  color: #bb0000;
+  text-decoration: none;
+  font-weight: bold;
+}
+.logout {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    background: #fff;
+    color: #0b8457;
+    border-radius: 20px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .status-card {
+  margin-top: 15px;
+  display: inline-block;
+  background: rgba(255,255,255,0.9);
+  color: #0b8457;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.election-card {
+  margin: 25px auto 0;
+  max-width: 640px;
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.95),
+    rgba(245,255,245,0.95)
+  );
+  padding: 22px;
+  border-radius: 20px;
+  box-shadow:
+    0 15px 40px rgba(0,0,0,0.35),
+    0 0 0 3px rgba(0,100,0,0.15);
+  text-align: center;
+}
+
+.election-card h3 {
+  margin-bottom: 14px;
+  color: #006400;
+  font-size: 1.25em;
+}
+
+.countdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px,1fr));
+  gap: 12px;
+}
+
+.time-box {
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px 6px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.time-box span {
+  display: block;
+  font-size: 1.8em;
+  font-weight: bold;
+  color: #bb0000;
+}
+
+.time-box small {
+  font-size: 12px;
+  color: #555;
+}
+
+.pulse {
+  animation: pulse 1s infinite;
+}
+
+.seconds span {
+  color: #006400;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+#electionMessage {
+  margin-top: 12px;
+  font-weight: bold;
+  color: #006400;
+}
+.hero-card {
+  max-width: 900px;
+  margin: auto;
+  padding: 35px 25px;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 25px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.hero-card h1 {
+  font-size: 2.8em;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+.hero-sub {
+  font-size: 1.25em;
+  margin-bottom: 10px;
+}
+
+.hero-mission {
+  font-size: 1em;
+  opacity: 0.9;
+  margin-bottom: 18px;
+}
+
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.hero-tags span {
+  background: rgba(255,255,255,0.9);
+  color: #006400;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+}
+
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+  <div class="hero-card">
+  <h1>🇰🇪 KENYA E-CAMPAIGN PLATFORM</h1>
+
+  <p class="hero-sub">
+    A digital civic ground for education, accountability,
+    and peaceful elections in Kenya.
+  </p>
+
+  <p class="hero-mission">
+    Empowering voters • Promoting issue-based campaigns • Protecting peace
+  </p>
+
+  <div class="hero-tags">
+    <span>🕊️ Peace First</span>
+    <span>🗳️ Informed Voting</span>
+    <span>🇰🇪 One Kenya</span>
+    <span>📚 Civic Education</span>
+    <span>🤝 Unity Over Politics</span>
+  </div>
+  <div id="kenyaQuote"></div>
+</div>
+
+<div class="status-card">
+  Account Status: <strong id="status"></strong>
+</div>
+<div class="election-card">
+  <h3>🗳️ Kenya General Elections 2027</h3>
+
+  <div class="countdown-grid">
+    <div class="time-box">
+      <span id="months">0</span>
+      <small>Months</small>
+    </div>
+    <div class="time-box">
+      <span id="weeks">0</span>
+      <small>Weeks</small>
+    </div>
+    <div class="time-box">
+      <span id="days">0</span>
+      <small>Days</small>
+    </div>
+    <div class="time-box pulse">
+      <span id="hours">0</span>
+      <small>Hours</small>
+    </div>
+    <div class="time-box pulse">
+      <span id="minutes">0</span>
+      <small>Minutes</small>
+    </div>
+    <div class="time-box pulse seconds">
+      <span id="seconds">0</span>
+      <small>Seconds</small>
+    </div>
+  </div>
+
+  <div id="electionMessage"></div>
+</div>
+
+  <nav>
+  <button onclick="goPoliticians()">🏛️ Politicians</button>
+  <button onclick="goGround()">📍 Ground Updates</button>
+  <button onclick="goManifestos()">📜 Manifestos</button>
+  <button id="applyBtn" onclick="goApply()">📝 Apply as Politician</button>
+  <button id="profileBtn" onclick="goMyProfile()" style="display:none;">
+  👤 My Profile
+</button>
+
+  <button id="adminBtn" onclick="goAdmin()" style="display:none;">🛡️ Admin</button>
+</nav>
+
+</header>
+<div class="logout" onclick="logout()">Logout</div>
+
+</section>
+<script>
+
+const electionDate = new Date("2027-08-12T00:00:00");
+function logout() {
+  localStorage.removeItem("user");
+  window.location.href = "login.html";
+}
+
+const user = JSON.parse(localStorage.getItem("user"));
+if (!user) {
+  window.location.href = "login.html";
+}
+
+
+let statusText = "🗳️ Voter";
+
+if (user.role === "politician") {
+  statusText = "🟢 Politician";
+  document.getElementById("applyBtn").style.display = "none";
+  document.getElementById("profileBtn").style.display = "inline-block";
+}
+
+if (user.role === "admin") {
+  statusText = "🛡️ Administrator";
+  document.getElementById("applyBtn").style.display = "none";
+  document.getElementById("adminBtn").style.display = "inline-block";
+}
+
+
+
+document.getElementById("status").innerText = statusText;
+
+function updateCountdown() {
+  const now = new Date();
+  let diff = electionDate - now;
+
+  if (diff <= 0) {
+    document.querySelector(".countdown-grid").innerHTML = "🇰🇪";
+    document.getElementById("electionMessage").innerText =
+      "🎉 Today is Election Day! Vote peacefully 🇰🇪";
+    return;
+  }
+
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const weeks = Math.floor(days / 7);
+  const months = Math.floor(days / 30);
+
+  document.getElementById("months").innerText = months;
+  document.getElementById("weeks").innerText = weeks;
+  document.getElementById("days").innerText = days;
+  document.getElementById("hours").innerText = hours % 24;
+  document.getElementById("minutes").innerText = minutes % 60;
+  document.getElementById("seconds").innerText = seconds % 60;
+
+  if (days <= 30) {
+    document.getElementById("electionMessage").innerText =
+      "⚠️ Less than 30 days — Stay informed. Stay peaceful.";
+  } else {
+    document.getElementById("electionMessage").innerText =
+      "🕊️ Democracy begins with peace and participation.";
+  }
+}
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+const quotes = [
+  "Peace is the foundation of democracy 🇰🇪",
+  "One Kenya • One People • One Future",
+  "Elections end — Kenya remains",
+  "Leadership begins with service",
+  "Informed voters build strong nations"
+];
+
+const quoteBox = document.getElementById("kenyaQuote");
+
+function rotateQuote() {
+  const q = quotes[Math.floor(Math.random() * quotes.length)];
+  quoteBox.textContent = q;
+}
+
+rotateQuote();
+setInterval(rotateQuote, 5000);
+
+</script>
+
+<section class="split">
+  <div>
+    <h2>Youth. Voters. The Future.</h2>
+    <p>
+      Gen Z and young voters deserve transparency, truth,
+      and leaders who listen — not intimidation or violence.
+    </p>
+  </div>
+  <img src="women.webp" alt="Kenyan Youth">
+</section>
+
+<section class="split">
+  <img src="peace.webp" alt="Peaceful Kenya">
+  <div>
+    <h2>Peaceful Campaigns Matter</h2>
+    <p>
+      Kenya’s strength is unity. Civic Ground promotes issue-based
+      campaigns and early reporting of tension to protect lives.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2>📜 Our Civic Commitment</h2>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>📖 Constitution of Kenya</h3>
+      <p>
+        Sovereign power belongs to the people.
+        Leaders must respect democracy, peace, and human dignity.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>🎶 National Anthem</h3>
+      <p>
+        “Let all with one accord, in common bond united…”
+        — A reminder of unity beyond politics.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>🕊️ Zero Violence</h3>
+      <p>
+        No tribalism. No humiliation. No incitement.
+        Truth, facts, and accountability only.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>🔍 Transparency</h3>
+      <p>
+        Track records, manifestos, ratings, and real public feedback —
+        all in one open platform.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <h2>🇰🇪 Kenya 2027 Starts With Us</h2>
+  <p>
+    Participate responsibly. Demand accountability. Protect peace.
+  </p>
+  <button onclick="goPoliticians()">Get Started</button>
+</section>
+
+<footer>
+  <img src="flag.jpg" width="60"><br>
+  Civic Ground © 2026 • Built for Peaceful Elections 🇰🇪
+</footer>
+
+<script>
+function goPoliticians() {
+  window.location.href = "politicians.html";
+}
+
+function goGround() {
+  window.location.href = "ground.html";
+}
+function goManifestos() {
+  window.location.href = "politicians.html";
+}
+function goApply() {
+  window.location.href = "apply-politician.html";
+  
+}
+function goMyProfile() {
+  window.location.href = "my-profile.html";
+}
+
+function goAdmin() {
+  window.location.href = "admin.html";
+}
+
+</script>
+
+</body>
+</html>

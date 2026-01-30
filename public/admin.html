@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6fa;
+}
+
+header {
+  background: #1e3799;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  font-weight: bold;
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  background: white;
+  padding: 10px;
+}
+
+nav button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #e3e8ff;
+}
+
+nav button.active {
+  background: #1e3799;
+  color: white;
+}
+
+.container {
+  max-width: 900px;
+  margin: 20px auto;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.badge {
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+
+.pending { background: #fff3cd; }
+.approved { background: #d4edda; }
+.rejected { background: #f8d7da; }
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+}
+
+.modal-content {
+  background: white;
+  max-width: 500px;
+  margin: 80px auto;
+  padding: 20px;
+  border-radius: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<header>🛡️ Civic Platform – Admin Panel</header>
+
+<nav>
+  <button id="usersBtn" class="active">Users</button>
+  <button id="appsBtn">Politician Applications</button>
+</nav>
+
+<div class="container" id="content"></div>
+
+<div class="modal" id="modal">
+  <div class="modal-content" id="modalContent"></div>
+</div>
+
+<script>
+const API = "http://localhost:3000";
+const admin = JSON.parse(localStorage.getItem("user"));
+
+if (!admin || admin.role !== "admin") {
+  alert("Admin access only");
+  location.href = "login.html";
+}
+
+const content = document.getElementById("content");
+const modal = document.getElementById("modal");
+const modalContent = document.getElementById("modalContent");
+
+document.getElementById("usersBtn").onclick = loadUsers;
+document.getElementById("appsBtn").onclick = loadApps;
+
+/* ================= USERS ================= */
+function loadUsers() {
+  setActive("usersBtn");
+  fetch(API + "/admin/users")
+    .then(r => r.json())
+    .then(users => {
+      content.innerHTML = "";
+      users.forEach(u => {
+        content.innerHTML += `
+          <div class="card">
+            <div>
+              <b>${u.username}</b><br>${u.email}
+            </div>
+            <span class="badge">${u.role}</span>
+          </div>
+        `;
+      });
+    });
+}
+
+/* ================= APPLICATIONS ================= */
+function loadApps() {
+  setActive("appsBtn");
+  fetch(API + "/admin/applications")
+    .then(r => r.json())
+    .then(apps => {
+      content.innerHTML = "";
+      apps.forEach(a => {
+        content.innerHTML += `
+          <div class="card" onclick="viewApp('${a.id}')">
+            <div>
+              <b>${a.full_name}</b><br>
+              ${a.seat} · ${a.county}
+            </div>
+            <span class="badge ${a.status}">${a.status}</span>
+          </div>
+        `;
+      });
+    });
+}
+
+function viewApp(id) {
+  fetch(API + "/admin/applications")
+    .then(r => r.json())
+    .then(apps => {
+      const a = apps.find(x => x.id === id);
+
+      modalContent.innerHTML = `
+        <h3>${a.full_name}</h3>
+        <p><b>Seat:</b> ${a.seat}</p>
+        <p><b>County:</b> ${a.county}</p>
+        <p><b>Party:</b> ${a.party}</p>
+        <p><b>Fee:</b> KES ${a.fee}</p>
+        <p><b>Status:</b> ${a.status}</p>
+
+        ${a.status === "pending" ? `
+          <button onclick="approve('${a.id}')">Approve</button>
+          <button onclick="reject('${a.id}')">Reject</button>
+        ` : ""}
+
+        <br><br>
+        <button onclick="closeModal()">Close</button>
+      `;
+      modal.style.display = "block";
+    });
+}
+
+/* ================= ACTIONS ================= */
+function approve(id) {
+  if (!confirm("Approve this politician?")) return;
+
+  fetch(API + "/admin/approve-politician", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+   body: JSON.stringify({
+  application_id: id,
+  admin_id: admin.id
+})
+
+  })
+  .then(r => r.json())
+  .then(() => {
+    closeModal();
+    loadApps();
+  });
+}
+
+function reject(id) {
+  if (!confirm("Reject this application?")) return;
+
+  fetch(API + "/admin/reject-politician", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      application_id: id,
+      admin_id: admin.id
+    })
+  })
+  .then(() => {
+    closeModal();
+    loadApps();
+  });
+}
+
+/* ================= HELPERS ================= */
+function closeModal() {
+  modal.style.display = "none";
+}
+
+function setActive(id) {
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+loadUsers();
+</script>
+
+</body>
+</html>

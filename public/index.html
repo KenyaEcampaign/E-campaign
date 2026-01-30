@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Politicians | Civic Ground 🇰🇪</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f4f6f8;
+}
+
+header {
+  background: #1e3799;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 0 15px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  cursor: pointer;
+}
+
+.card h3 {
+  margin: 0;
+  color: #1e3799;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #e3e8ff;
+  margin-top: 6px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+}
+
+.modal-content {
+  background: white;
+  max-width: 700px;
+  margin: 60px auto;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+textarea, input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: #1e3799;
+  color: white;
+  margin-top: 8px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>🏛️ Kenyan Politicians</h2>
+  <p>Approved candidates & leaders — transparent, peaceful, accountable</p>
+</header>
+
+<div class="container">
+  <div class="grid" id="politicians"></div>
+  <span class="badge">✔ Verified</span>
+
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content" id="modalContent"></div>
+</div>
+
+<script>
+const API = "http://localhost:3000";
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!user) location.href = "login.html";
+
+const container = document.getElementById("politicians");
+const modal = document.getElementById("modal");
+const modalContent = document.getElementById("modalContent");
+
+// LOAD APPROVED POLITICIANS
+fetch(API + "/politicians")
+  .then(res => res.json())
+  .then(list => {
+    container.innerHTML = "";
+    list.forEach(p => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <h3>${p.full_name}</h3>
+        <div>${p.seat} · ${p.county}</div>
+        <span class="badge">${p.party}</span>
+      `;
+      card.onclick = () => openProfile(p.id);
+      container.appendChild(card);
+    });
+  });
+
+// OPEN PROFILE
+function openProfile(id) {
+  fetch(API + "/politician/" + id)
+    .then(res => res.json())
+    .then(data => {
+  const { profile, manifestos, achievements, promises } = data;
+
+  modalContent.innerHTML = `
+    <h2>${profile.full_name}</h2>
+    <p><b>Seat:</b> ${profile.seat}</p>
+    <p><b>County:</b> ${profile.county}</p>
+    <p><b>Party:</b> ${profile.party}</p>
+
+    <h3>📜 Manifestos</h3>
+    ${manifestos.length
+      ? manifestos.map(m => `<p><b>${m.category}:</b> ${m.content}</p>`).join("")
+      : "<p>No manifestos posted yet.</p>"
+    }
+
+    <h3>🤝 Promises</h3>
+    ${promises.length
+      ? promises.map(p => `<p>• ${p.content}</p>`).join("")
+      : "<p>No promises yet.</p>"
+    }
+
+    <h3>🏆 Achievements</h3>
+    ${achievements.length
+      ? achievements.map(a => `<p><b>${a.title}:</b> ${a.description}</p>`).join("")
+      : "<p>No achievements yet.</p>"
+    }
+
+    <br>
+    <button onclick="closeModal()">Close</button>
+
+        ${
+          user.role === "politician" && user.id === p.user_id
+          ? `
+            <h3>✏️ Update Your Profile</h3>
+            <textarea id="promises" placeholder="Promises">${p.promises || ""}</textarea>
+            <textarea id="achievements" placeholder="Achievements">${p.achievements || ""}</textarea>
+            <textarea id="campaign" placeholder="Campaign approach">${p.campaign || ""}</textarea>
+            <button onclick="saveUpdates(${p.id})">Save</button>
+          `
+          : ""
+        }
+
+        <br><br>
+        <button onclick="closeModal()">Close</button>
+      `;
+
+      modal.style.display = "block";
+    });
+}
+
+function saveUpdates(id) {
+  fetch(API + "/politician/update-profile", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      politician_id: id,
+      promises: document.getElementById("promises").value,
+      achievements: document.getElementById("achievements").value,
+      campaign: document.getElementById("campaign").value
+    })
+  }).then(() => {
+    alert("Profile updated");
+    closeModal();
+  });
+}
+
+function closeModal() {
+  modal.style.display = "none";
+}
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Politicians | Civic Ground 🇰🇪</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f4f6f8;
+}
+
+header {
+  background: #1e3799;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 0 15px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  cursor: pointer;
+}
+
+.card h3 {
+  margin: 0;
+  color: #1e3799;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #e3e8ff;
+  margin-top: 6px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+}
+
+.modal-content {
+  background: white;
+  max-width: 700px;
+  margin: 60px auto;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+textarea, input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: #1e3799;
+  color: white;
+  margin-top: 8px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>🏛️ Kenyan Politicians</h2>
+  <p>Approved candidates & leaders — transparent, peaceful, accountable</p>
+</header>
+
+<div class="container">
+  <div class="grid" id="politicians"></div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content" id="modalContent"></div>
+</div>
+
+<script>
+const API = "http://localhost:3000";
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!user) location.href = "login.html";
+
+const container = document.getElementById("politicians");
+const modal = document.getElementById("modal");
+const modalContent = document.getElementById("modalContent");
+
+// LOAD APPROVED POLITICIANS
+fetch(API + "/politicians")
+  .then(res => res.json())
+  .then(list => {
+    container.innerHTML = "";
+    list.forEach(p => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <h3>${p.full_name}</h3>
+        <div>${p.seat} · ${p.county}</div>
+        <span class="badge">${p.party}</span>
+      `;
+      card.onclick = () => openProfile(p.id);
+      container.appendChild(card);
+    });
+  });
+
+// OPEN PROFILE
+function openProfile(id) {
+  fetch(API + "/politician/" + id)
+    .then(res => res.json())
+    .then(p => {
+
+      modalContent.innerHTML = `
+        <h2>${p.full_name}</h2>
+        <p><b>Seat:</b> ${p.seat}</p>
+        <p><b>County:</b> ${p.county}</p>
+        <p><b>Party:</b> ${p.party}</p>
+
+        <h3>📜 Manifesto</h3>
+        <p>${p.promises || "No promises added yet."}</p>
+
+        <h3>🏆 Achievements</h3>
+        <p>${p.achievements || "No achievements added yet."}</p>
+
+        <h3>🎯 Campaign Approach</h3>
+        <p>${p.campaign || "No campaign plan shared yet."}</p>
+
+        ${
+          user.role === "politician" && user.id === p.user_id
+          ? `
+            <h3>✏️ Update Your Profile</h3>
+            <textarea id="promises" placeholder="Promises">${p.promises || ""}</textarea>
+            <textarea id="achievements" placeholder="Achievements">${p.achievements || ""}</textarea>
+            <textarea id="campaign" placeholder="Campaign approach">${p.campaign || ""}</textarea>
+            <button onclick="saveUpdates(${p.id})">Save</button>
+          `
+          : ""
+        }
+
+        <br><br>
+        <button onclick="closeModal()">Close</button>
+      `;
+
+      modal.style.display = "block";
+    });
+}
+
+function saveUpdates(id) {
+  fetch(API + "/politician/update-profile", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      politician_id: id,
+      promises: document.getElementById("promises").value,
+      achievements: document.getElementById("achievements").value,
+      campaign: document.getElementById("campaign").value
+    })
+  }).then(() => {
+    alert("Profile updated");
+    closeModal();
+  });
+}
+
+function closeModal() {
+  modal.style.display = "none";
+}
+</script>
+
+</body>
+</html>

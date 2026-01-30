@@ -1,0 +1,120 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome Back</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #1dd1a1, #54a0ff);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: #fff;
+      padding: 30px;
+      width: 330px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    h1 {
+      color: #1e3799;
+      margin-bottom: 5px;
+    }
+
+    p {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #1e3799;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #162a6a;
+    }
+
+    a {
+      color: #1e3799;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h1>Welcome Back 👋</h1>
+  <p>Log in and keep shaping the conversation.</p>
+
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+
+  <button onclick="login()">Login</button>
+<p>
+  <a href="forgot.html">Forgot password?</a>
+</p>
+
+  <p style="margin-top:15px">
+    New here? <a href="signup.html">Create account</a>
+  </p>
+</div>
+
+<script>
+function login() {
+  fetch("http://localhost:3000/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: document.getElementById("email").value,
+      password: document.getElementById("password").value
+    })
+  })
+  .then(res => res.json())
+  .then(user => {
+    if (user.error) {
+      alert(user.error);
+      return;
+    }
+
+    // ✅ STORE USER DIRECTLY
+    localStorage.setItem("user", JSON.stringify(user));
+
+    // ✅ ROLE-BASED REDIRECT
+    if (user.role === "admin") {
+      window.location.href = "admin.html";
+    } else {
+      window.location.href = "home.html";
+    }
+  })
+  .catch(() => alert("Network error"));
+}
+</script>
+
+
+</body>
+</html>

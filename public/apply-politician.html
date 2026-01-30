@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Apply as Politician | Civic Ground</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #006400, #bb0000);
+      padding: 20px;
+    }
+
+    .box {
+      max-width: 750px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    h2 {
+      text-align: center;
+      color: #006400;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      margin-top: 20px;
+      background: #bb0000;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .note {
+      background: #eef5ff;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .success-box {
+      display: none;
+      text-align: center;
+      background: #e6ffe6;
+      padding: 25px;
+      border-radius: 12px;
+      margin-top: 20px;
+      border: 2px solid #006400;
+    }
+
+    .success-box h3 {
+      color: #006400;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>📝 Apply as a Politician</h2>
+
+  <input id="full_name" placeholder="Full Name" required>
+
+  <select id="seat" onchange="handleSeatChange()">
+    <option value="">-- Select Seat --</option>
+    <option value="MCA">Member of County Assembly (MCA)</option>
+    <option value="MP">Member of Parliament (MP)</option>
+    <option value="Woman Rep">Woman Representative</option>
+    <option value="Senator">Senator</option>
+    <option value="Governor">Governor</option>
+    <option value="President">President</option>
+  </select>
+
+  <!-- COUNTY -->
+  <select id="county" class="hidden">
+    <option value="">-- Select County --</option>
+  </select>
+
+  <!-- CONSTITUENCY -->
+  <input id="constituency" class="hidden" placeholder="Constituency">
+
+  <!-- WARD -->
+  <input id="ward" class="hidden" placeholder="Ward">
+
+  <input id="party" placeholder="Political Party / Independent">
+
+  <textarea id="motivation" placeholder="Why should Kenyans elect you? (10–1000 words)"></textarea>
+
+  <div class="note">
+    💰 <strong>Application Fee:</strong> KES <span id="fee">0</span><br><br>
+    📲 <strong>M-Pesa Till:</strong> <b>123456</b><br>
+    Pay the amount above and enter your transaction code below.
+  </div>
+
+  <input id="mpesa_code" placeholder="M-Pesa Transaction Code">
+
+  <button onclick="submitApplication()">Submit Application</button>
+
+  <div class="success-box" id="successBox">
+    <h3>✅ Application Submitted Successfully</h3>
+    <p>
+      Your application has been received and is currently under review.<br>
+      You will be notified once the admin approves or rejects it.
+    </p>
+  </div>
+</div>
+
+<script>
+const API = "http://localhost:3000";
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!user) {
+  window.location.href = "login.html";
+}
+
+const fees = {
+  "MCA": 2000,
+  "MP": 5000,
+  "Woman Rep": 5000,
+  "Senator": 7500,
+  "Governor": 10000,
+  "President": 20000
+};
+
+const counties = [
+  "Nairobi","Mombasa","Kisumu","Nakuru","Kiambu","Machakos","Kajiado",
+  "Uasin Gishu","Meru","Nyeri","Murang'a","Kirinyaga","Embu","Laikipia",
+  "Narok","Bomet","Kericho","Kakamega","Vihiga","Bungoma","Busia",
+  "Siaya","Homa Bay","Migori","Kisii","Nyamira","Turkana","West Pokot",
+  "Elgeyo Marakwet","Nandi","Trans Nzoia","Samburu","Isiolo","Marsabit",
+  "Garissa","Wajir","Mandera","Lamu","Taita Taveta","Kilifi","Kwale",
+  "Tana River","Tharaka Nithi","Kitui","Makueni","West Pokot","Baringo"
+];
+
+const countySelect = document.getElementById("county");
+counties.forEach(c => {
+  const opt = document.createElement("option");
+  opt.value = c;
+  opt.textContent = c;
+  countySelect.appendChild(opt);
+});
+
+function handleSeatChange() {
+  const seat = document.getElementById("seat").value;
+
+  document.getElementById("fee").innerText = fees[seat] || 0;
+
+  countySelect.classList.add("hidden");
+  document.getElementById("constituency").classList.add("hidden");
+  document.getElementById("ward").classList.add("hidden");
+
+  if (seat === "MCA") {
+    countySelect.classList.remove("hidden");
+    constituency.classList.remove("hidden");
+    ward.classList.remove("hidden");
+  }
+
+  if (seat === "MP") {
+    countySelect.classList.remove("hidden");
+    constituency.classList.remove("hidden");
+  }
+
+  if (seat === "Woman Rep" || seat === "Senator") {
+    countySelect.classList.remove("hidden");
+  }
+
+  if (seat === "Governor") {
+    countySelect.classList.remove("hidden");
+  }
+  if (seat === "President") {
+  countySelect.value = "";
+}
+
+}
+
+function submitApplication() {
+  const motivationText = document.getElementById("motivation").value.trim();
+  const wordCount = motivationText.split(/\s+/).length;
+
+  if (wordCount < 10 || wordCount > 1000) {
+    alert("Motivation must be between 10 and 20 words.");
+    return;
+  }
+
+  const data = {
+    user_id: user.id,
+    full_name: full_name.value.trim(),
+    seat: seat.value,
+    county: county.value,
+    constituency: constituency.value,
+    ward: ward.value,
+    party: party.value.trim(),
+    motivation: motivationText,
+    fee: fees[seat.value],
+    mpesa_code: mpesa_code.value.trim()
+  };
+
+  if (!data.full_name || !data.seat || !data.motivation || !data.mpesa_code) {
+  alert("Please fill all required fields.");
+  return;
+}
+
+if (data.seat !== "President" && !data.county) {
+  alert("Please select a county.");
+  return;
+}
+
+
+  fetch(API + "/apply-politician", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(resp => {
+    if (!resp.error) {
+      document.querySelector("button").style.display = "none";
+      document.getElementById("successBox").style.display = "block";
+    } else {
+      alert(resp.error);
+    }
+  })
+  .catch(() => alert("Network error"));
+}
+</script>
+
+</body>
+</html>

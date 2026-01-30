@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Politician Profile</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f6fa;
+      padding: 20px;
+    }
+    .box {
+      max-width: 900px;
+      background: white;
+      margin: auto;
+      padding: 20px;
+      border-radius: 12px;
+    }
+    textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 16px;
+      background: #1e3799;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .item {
+      background: #fafafa;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2 id="name"></h2>
+  <p id="meta"></p>
+
+  <hr>
+
+  <h3>📜 Post Manifesto</h3>
+  <select id="category">
+    <option>Youth & Jobs</option>
+    <option>Education</option>
+    <option>Health</option>
+    <option>Economy</option>
+    <option>Governance</option>
+  </select>
+  <textarea id="content" placeholder="Write your manifesto..."></textarea>
+  <button onclick="postManifesto()">Post Manifesto</button>
+    <button onclick="goHome()">🏠 Home</button>
+
+  <hr>
+
+  <h3>📜 My Manifestos</h3>
+  <div id="manifestos"></div>
+</div>
+
+<script>
+const API = "http://localhost:3000";
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!user || user.role !== "politician") {
+  alert("Access denied");
+  location.href = "home.html";
+}
+
+// 1️⃣ GET MY PROFILE
+fetch(API + "/my-politician-profile/" + user.id)
+  .then(res => res.json())
+  .then(data => {
+    window.profileId = data.id;
+
+    document.getElementById("name").innerText = data.full_name;
+    document.getElementById("meta").innerText =
+      `${data.seat} · ${data.county} · ${data.party || "Independent"}`;
+
+    loadManifestos();
+  });
+
+// 2️⃣ LOAD MANIFESTOS
+function loadManifestos() {
+  fetch(API + "/politician/" + profileId)
+    .then(res => res.json())
+    .then(data => {
+      const box = document.getElementById("manifestos");
+      box.innerHTML = "";
+
+      if (!data.manifestos.length) {
+        box.innerHTML = "<p>No manifestos yet.</p>";
+        return;
+      }
+
+      data.manifestos.forEach(m => {
+        box.innerHTML += `
+          <div class="item">
+            <b>${m.category}</b><br>
+            ${m.content}
+          </div>
+        `;
+      });
+    });
+}
+
+// 3️⃣ POST MANIFESTO
+function postManifesto() {
+  fetch(API + "/manifesto", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_id: user.id,
+      category: category.value,
+      content: content.value
+    })
+  }).then(() => {
+    content.value = "";
+    loadManifestos();
+  });
+}
+</script>
+
+</body>
+</html>

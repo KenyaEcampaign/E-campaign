@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Verify Email</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #54a0ff, #1dd1a1);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: #fff;
+      padding: 30px;
+      width: 320px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    h2 {
+      color: #1e3799;
+      margin-bottom: 10px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #1e3799;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>📧 Verify Your Email</h2>
+  <p>Enter the verification code sent to your email</p>
+
+  <input id="code" placeholder="Verification code">
+  <button onclick="verify()">Verify Email</button>
+</div>
+
+<script>
+function verify() {
+  fetch("http://localhost:3000/verify-email", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      email: localStorage.getItem("pendingEmail"),
+      code: code.value
+    })
+  })
+  .then(res => res.json())
+  .then(r => {
+    if (r.error) alert(r.error);
+    else {
+      alert("Email verified successfully");
+      localStorage.removeItem("pendingEmail");
+      window.location.href = "login.html";
+    }
+  });
+}
+</script>
+
+</body>
+</html>

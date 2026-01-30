@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Politician Profile</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f6fa;
+      padding: 20px;
+    }
+    .profile {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 800px;
+      margin: auto;
+    }
+    .name {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .meta {
+      color: #555;
+      margin-bottom: 10px;
+    }
+    .manifesto {
+      background: #fafafa;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+	
+  </style>
+</head>
+<body>
+
+<div class="profile">
+  <div class="name" id="name"></div>
+  <div class="meta" id="meta"></div>
+
+  <h3>📜 Manifestos</h3>
+  <div id="manifestos"></div>
+</div>
+
+<script>
+const API = "http://localhost:3000";
+const params = new URLSearchParams(window.location.search);
+const politicianId = params.get("id");
+
+if (!politicianId) {
+  alert("Invalid politician");
+  location.href = "politicians.html";
+}
+
+fetch(API + "/politician/" + politicianId)
+  .then(res => res.json())
+  .then(data => {
+
+    document.getElementById("name").textContent = data.profile.full_name;
+    document.getElementById("meta").textContent =
+      `${data.profile.party || "Independent"} · ${data.profile.seat}`;
+
+    const list = document.getElementById("manifestos");
+
+    if (!data.manifestos.length) {
+      list.innerHTML = "<p>No manifestos yet.</p>";
+      return;
+    }
+
+    data.manifestos.forEach(m => {
+      const div = document.createElement("div");
+      div.className = "manifesto";
+      div.innerHTML = `<b>${m.category}</b><br>${m.content}`;
+      list.appendChild(div);
+    });
+  })
+  .catch(() => alert("Failed to load profile"));
+</script>
+
+</body>
+</html>

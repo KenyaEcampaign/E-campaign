@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Forgot Password</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #1dd1a1, #54a0ff);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: #fff;
+      padding: 30px;
+      width: 330px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    h2 {
+      color: #1e3799;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #1e3799;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>🔑 Forgot Password</h2>
+  <p>Enter your email to receive a reset code</p>
+
+  <input id="email" placeholder="Email address">
+  <button onclick="sendReset()">Send Reset Code</button>
+</div>
+
+<script>
+function sendReset() {
+  const emailVal = email.value.trim();
+  if (!emailVal) return alert("Enter your email");
+
+  localStorage.setItem("resetEmail", emailVal);
+
+  fetch("http://localhost:3000/forgot-password", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ email: emailVal })
+  })
+  .then(() => {
+    alert("Reset code sent to your email");
+    window.location.href = "reset.html";
+  });
+}
+</script>
+
+</body>
+</html>
