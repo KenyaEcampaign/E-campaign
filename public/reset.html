@@ -54,36 +54,45 @@
 <input id="confirm" type="password" placeholder="Confirm password">
 
 
-  <button onclick="reset()">Reset Password</button>
+  <button onclick="resetPassword()">Reset Password</button>
+
 </div>
 
 <script>
-function reset() {
-  if (pass.value !== confirm.value) {
-    return alert("Passwords do not match");
+function resetPassword() {
+  const code = document.getElementById("code").value.trim();
+  const password = document.getElementById("password").value;
+  const confirm = document.getElementById("confirm").value;
+
+  if (!code || !password || !confirm) {
+    alert("All fields are required");
+    return;
+  }
+
+  if (password !== confirm) {
+    alert("Passwords do not match");
+    return;
   }
 
   fetch("https://e-campaign.onrender.com/reset-password", {
-
     method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({
-      email: localStorage.getItem("resetEmail"),
-      code: code.value,
-      password: pass.value
-    })
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code, password })
   })
   .then(res => res.json())
-  .then(r => {
-    if (r.error) alert(r.error);
-    else {
-      alert("Password reset successful");
-      localStorage.removeItem("resetEmail");
+  .then(data => {
+    if (data.error) {
+      alert(data.error);
+    } else {
+      alert("Password reset successful. Please login.");
       window.location.href = "login.html";
     }
-  });
+  })
+  .catch(() => alert("Network error"));
 }
 </script>
+
+
 
 </body>
 </html>
