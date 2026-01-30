@@ -95,8 +95,10 @@
 </div>
 
 <script>
+const API_BASE = "https://e-campaign.onrender.com";
+
 function signup() {
-  fetch("http://localhost:3000/register", {
+  fetch(`${API_BASE}/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

@@ -55,7 +55,8 @@
 
 <script>
 function verify() {
-  fetch("http://localhost:3000/verify-email", {
+  fetch("https://e-campaign.onrender.com/verify-email", {
+
     method: "POST",
     headers: {"Content-Type":"application/json"},
     body: JSON.stringify({

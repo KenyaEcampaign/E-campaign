@@ -85,8 +85,10 @@
 </div>
 
 <script>
+const API_BASE = "https://e-campaign.onrender.com";
+
 function login() {
-  fetch("http://localhost:3000/login", {
+  fetch(`${API_BASE}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
