@@ -1,4 +1,12 @@
 {
+  "type": "module",
+  "name": "e-campaign",
+  "version": "1.0.0",
+  ...
+}
+
+
+{
   "name": "civic-platform",
   "version": "1.0.0",
   "type": "commonjs",
