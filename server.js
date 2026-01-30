@@ -169,12 +169,9 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-if (!user.verified) {
-  return res.status(403).json({
-    error: "Please verify your email before logging in"
-  });
+if (!user.email_verified) {
+  return res.json({ error: "Please verify your email first" });
 }
-
 
     // Remove password before sending response
     delete user.password_hash;
@@ -192,50 +189,41 @@ if (!user.verified) {
   }
 });
 
-app.post("/forgot", async (req, res) => {
-  const { email } = req.body;
-  const token = crypto.randomBytes(32).toString("hex");
+app.post("/forgot-password", async (req, res) => {
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-  await supabase
-    .from("users")
-    .update({ reset_token: token })
-    .eq("email", email);
-
-  const link =
-    `https://e-campaign.onrender.com/reset.html?token=${token}`;
+  await supabase.from("users").update({
+    reset_code: code,
+    reset_code_expires: new Date(Date.now() + 15 * 60 * 1000)
+  }).eq("email", req.body.email);
 
   await sendEmail(
-    email,
-    "Reset your E-Campaign password",
-    `<a href="${link}">Reset password</a>`
+    req.body.email,
+    "Reset your Civic Ground password",
+    `<h3>Your reset code:</h3><h2>${code}</h2>`
   );
 
   res.json({ success: true });
 });
 
+app.post("/reset-password", async (req, res) => {
+  const { email, code, password } = req.body;
 
-app.post("/reset", async (req, res) => {
-  const { token, password } = req.body;
+  const { data } = await supabase.from("users").select("*").eq("email", email).single();
 
-  const hashed = await bcrypt.hash(password, 10);
+  if (!data || data.reset_code !== code || new Date() > new Date(data.reset_code_expires))
+    return res.json({ error: "Invalid or expired code" });
 
-  const { data, error } = await supabase
-    .from("users")
-    .update({
-      password: hashed,
-      reset_token: null
-    })
-    .eq("reset_token", token)
-    .select()
-    .single();
+  const hash = await bcrypt.hash(password, 10);
 
-  if (error || !data) {
-    return res.status(400).json({ error: "Invalid or expired token" });
-  }
+  await supabase.from("users").update({
+    password_hash: hash,
+    reset_code: null,
+    reset_code_expires: null
+  }).eq("email", email);
 
   res.json({ success: true });
 });
-
 
 app.post('/apply-politician', async (req, res) => {
   const {
