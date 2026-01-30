@@ -3,9 +3,12 @@ import sgMail from "@sendgrid/mail";
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export async function sendEmail(to, subject, html) {
-  await sgMail.send({
+  return sgMail.send({
     to,
-    from: process.env.EMAIL_FROM, // MUST be a STRING
+    from: {
+      email: process.env.EMAIL_FROM,
+      name: "Kenya E-Campaign 🇰🇪"
+    },
     subject,
     html
   });

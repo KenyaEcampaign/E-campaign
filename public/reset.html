@@ -63,6 +63,12 @@ function resetPassword() {
   const code = document.getElementById("code").value.trim();
   const password = document.getElementById("password").value;
   const confirm = document.getElementById("confirm").value;
+  const email = localStorage.getItem("resetEmail");
+
+  if (!email) {
+    alert("Reset session expired. Please request a new code.");
+    return;
+  }
 
   if (!code || !password || !confirm) {
     alert("All fields are required");
@@ -77,13 +83,14 @@ function resetPassword() {
   fetch("https://e-campaign.onrender.com/reset-password", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ code, password })
+    body: JSON.stringify({ email, code, password })
   })
   .then(res => res.json())
   .then(data => {
     if (data.error) {
       alert(data.error);
     } else {
+      localStorage.removeItem("resetEmail");
       alert("Password reset successful. Please login.");
       window.location.href = "login.html";
     }
@@ -91,7 +98,6 @@ function resetPassword() {
   .catch(() => alert("Network error"));
 }
 </script>
-
 
 
 </body>

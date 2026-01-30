@@ -89,9 +89,15 @@ app.post("/register", async (req, res) => {
     verify_code_expires: new Date(Date.now() + 15 * 60 * 1000)
   }]);
 
-  if (error) {
-    return res.status(400).json({ error: error.message });
+if (error) {
+  if (error.message.includes("users_username_key")) {
+    return res.status(400).json({ error: "Username already taken" });
   }
+  if (error.message.includes("users_email_key")) {
+    return res.status(400).json({ error: "Email already registered" });
+  }
+  return res.status(400).json({ error: error.message });
+}
 
   await sendEmail(
     email,

@@ -54,34 +54,27 @@
 </div>
 
 <script>
-function verify() {
-  fetch("https://e-campaign.onrender.com/verify-email", {
+function verifyEmail() {
+  const code = document.getElementById("code").value;
+  const email = localStorage.getItem("pendingEmail");
 
+  fetch("https://e-campaign.onrender.com/verify-email", {
     method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({
-      email: localStorage.getItem("pendingEmail"),
-      code: code.value
-    })
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, code })
   })
   .then(res => res.json())
-  .then(r => {
-    if (r.error) alert(r.error);
-    else {
-      alert("Email verified successfully");
+  .then(data => {
+    if (data.error) {
+      alert(data.error);
+    } else {
       localStorage.removeItem("pendingEmail");
+      alert("Email verified! Please login.");
       window.location.href = "login.html";
     }
   });
 }
-</script>
-<script>
-const email = localStorage.getItem("pendingEmail");
-if (!email) {
-  alert("No email to verify. Please sign up again.");
-  window.location.href = "signup.html";
-}
-</script>
+
 
 
 </body>

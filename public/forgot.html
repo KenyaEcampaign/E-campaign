@@ -71,6 +71,8 @@ function sendReset() {
     headers: {"Content-Type":"application/json"},
     body: JSON.stringify({ email: emailVal })
   })
+  localStorage.setItem("resetEmail", email);
+
   .then(() => {
     alert("Reset code sent to your email");
     window.location.href = "reset.html";
