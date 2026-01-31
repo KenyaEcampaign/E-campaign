@@ -133,7 +133,7 @@ app.post("/verify-email", async (req, res) => {
   await supabase.from("users").update({
     email_verified: true,
     verify_code: null,
-    verification_code_expires: null
+    verify_code_expires: null
   }).eq("email", email);
 
   res.json({ success: true });
@@ -203,9 +203,10 @@ app.post("/forgot-password", async (req, res) => {
     .eq("email", email)
     .single();
 
-  if (!user) {
-    return res.json({ error: "Email not found" });
-  }
+ if (!user) {
+  return res.status(404).json({ error: "Email not found" });
+}
+
 
   await supabase.from("users").update({
     reset_code: code,
@@ -231,8 +232,10 @@ app.post("/reset-password", async (req, res) => {
 
   const { data } = await supabase.from("users").select("*").eq("email", email).single();
 
-  if (!data || data.reset_code !== code || new Date() > new Date(data.reset_code_expires))
-    return res.json({ error: "Invalid or expired code" });
+ if (!data || data.reset_code !== code || new Date() > new Date(data.reset_code_expires)) {
+  return res.status(400).json({ error: "Invalid or expired code" });
+}
+
 
   const hash = await bcrypt.hash(password, 10);
 

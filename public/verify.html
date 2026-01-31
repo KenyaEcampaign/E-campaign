@@ -50,13 +50,19 @@
   <p>Enter the verification code sent to your email</p>
 
   <input id="code" placeholder="Verification code">
-  <button onclick="verify()">Verify Email</button>
+  <button onclick="verifyEmail()">Verify Email</button>
+
 </div>
 
 <script>
 function verifyEmail() {
-  const code = document.getElementById("code").value;
+  const code = document.getElementById("code").value.trim();
   const email = localStorage.getItem("pendingEmail");
+
+  if (!email) {
+    alert("Verification session expired. Please sign up again.");
+    return;
+  }
 
   fetch("https://e-campaign.onrender.com/verify-email", {
     method: "POST",
@@ -72,10 +78,10 @@ function verifyEmail() {
       alert("Email verified! Please login.");
       window.location.href = "login.html";
     }
-  });
+  })
+  .catch(() => alert("Network error"));
 }
-
-
+</script>
 
 </body>
 </html>

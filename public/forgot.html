@@ -60,23 +60,30 @@
 
 <script>
 function sendReset() {
-  const emailVal = email.value.trim();
-  if (!emailVal) return alert("Enter your email");
+  const emailVal = document.getElementById("email").value.trim();
+  if (!emailVal) {
+    alert("Enter your email");
+    return;
+  }
 
+  // Save email for reset page
   localStorage.setItem("resetEmail", emailVal);
 
   fetch("https://e-campaign.onrender.com/forgot-password", {
-
     method: "POST",
-    headers: {"Content-Type":"application/json"},
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email: emailVal })
   })
-  localStorage.setItem("resetEmail", email);
-
-  .then(() => {
-    alert("Reset code sent to your email");
-    window.location.href = "reset.html";
-  });
+  .then(res => res.json())
+  .then(data => {
+    if (data.error) {
+      alert(data.error);
+    } else {
+      alert("Reset code sent to your email");
+      window.location.href = "reset.html";
+    }
+  })
+  .catch(() => alert("Network error"));
 }
 </script>
 
