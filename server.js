@@ -981,6 +981,36 @@ app.post("/feedback", async (req, res) => {
 // ADMIN VIEW FEEDBACK
 app.get("/admin/feedback", async (req, res) => {
 
+  const adminId = req.headers.adminid;
+
+  // CHECK LOGIN
+  if (!adminId) {
+    return res.status(401).json({
+      error: "Unauthorized"
+    });
+  }
+
+  // VERIFY USER IS ADMIN
+  const { data: admin, error: adminError } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", adminId)
+    .single();
+
+  if (adminError || !admin) {
+    return res.status(401).json({
+      error: "Admin not found"
+    });
+  }
+
+  // CHECK ROLE
+  if (admin.role !== "admin") {
+    return res.status(403).json({
+      error: "Access denied"
+    });
+  }
+
+  // GET FEEDBACK
   const { data, error } = await supabase
     .from("feedback")
     .select("*")
