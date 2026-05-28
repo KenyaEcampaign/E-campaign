@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Feedback</title>
+
+<style>
+
+body{
+  font-family:Arial;
+  padding:20px;
+  background:#f4f4f4;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  margin-bottom:15px;
+  border-radius:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>Feedback Messages</h2>
+
+<div id="feedbacks"></div>
+
+<script>
+
+fetch("/admin/feedback")
+
+.then(res => res.json())
+
+.then(data => {
+
+  const container = document.getElementById("feedbacks");
+
+  data.forEach(item => {
+
+    container.innerHTML += `
+
+      <div class="card">
+
+        <h3>${item.category}</h3>
+
+        <p><strong>Name:</strong> ${item.name || "Anonymous"}</p>
+
+        <p><strong>Contact:</strong> ${item.contact || "N/A"}</p>
+
+        <p>${item.message}</p>
+
+        <small>${item.created_at}</small>
+
+      </div>
+
+    `;
+
+  });
+
+});
+
+</script>
+
+</body>
+</html>
