@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Feedback</title>
+
+<style>
+
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(135deg,#1dd1a1,#54a0ff);
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.card{
+  background:white;
+  padding:30px;
+  width:350px;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+h2{
+  text-align:center;
+  color:#1e3799;
+}
+
+input,textarea,select{
+  width:100%;
+  padding:12px;
+  margin-bottom:12px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  background:#1e3799;
+  color:white;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>Send Feedback</h2>
+
+<input id="name" placeholder="Your name (optional)">
+
+<input id="contact" placeholder="Phone or Email">
+
+<select id="category">
+
+<option>General Feedback</option>
+<option>Advice</option>
+<option>Bug Report</option>
+<option>Support</option>
+<option>Partnership</option>
+
+</select>
+
+<textarea
+id="message"
+rows="6"
+placeholder="Write your feedback here..."
+></textarea>
+
+<button onclick="submitFeedback()">
+Send Feedback
+</button>
+
+</div>
+
+<script>
+
+function submitFeedback(){
+
+  fetch("/feedback", {
+
+    method:"POST",
+
+    headers:{
+      "Content-Type":"application/json"
+    },
+
+    body: JSON.stringify({
+
+      name: document.getElementById("name").value,
+
+      contact: document.getElementById("contact").value,
+
+      category: document.getElementById("category").value,
+
+      message: document.getElementById("message").value
+
+    })
+
+  })
+
+  .then(res => res.json())
+
+  .then(data => {
+
+    if(data.error){
+
+      alert(data.error);
+
+    } else {
+
+      alert("Feedback sent successfully");
+
+      document.getElementById("name").value = "";
+      document.getElementById("contact").value = "";
+      document.getElementById("message").value = "";
+
+    }
+
+  });
+
+}
+
+</script>
+
+</body>
+</html>
