@@ -310,9 +310,9 @@ a {
 </div>
 
   <nav>
-    <a href="feedback.html">
-  <button>Feedback</button>
-</a>
+<button onclick="openFeedback()">
+  Feedback
+</button>
   <button onclick="goPoliticians()">🏛️ Politicians</button>
   <button onclick="goGround()">📍 Ground Updates</button>
   <button onclick="goManifestos()">📜 Manifestos</button>
@@ -483,9 +483,9 @@ setInterval(rotateQuote, 5000);
     Participate responsibly. Demand accountability. Protect peace.
   </p>
   <button onclick="goPoliticians()">Get Started</button>
-  <a href="feedback.html">
-  <button>Feedback</button>
-</a>
+<button onclick="openFeedback()">
+  Feedback
+</button>
 </section>
 
 <footer>
@@ -517,6 +517,26 @@ function goAdmin() {
 }
 
 </script>
+<script>
 
+function openFeedback() {
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  // IF ADMIN
+  if (user && user.role === "admin") {
+
+    window.location.href = "admin-feedback.html";
+
+  } else {
+
+    // NORMAL USERS
+    window.location.href = "feedback.html";
+
+  }
+
+}
+
+</script>
 </body>
 </html>
