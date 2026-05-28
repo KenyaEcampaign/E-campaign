@@ -32,11 +32,17 @@ body{
 
 const admin = JSON.parse(localStorage.getItem("user"));
 
+if (!admin || admin.role !== "admin") {
+  alert("Admin access only");
+  window.location.href = "login.html";
+}
+
 fetch("/admin/feedback", {
   headers: {
     adminid: admin.id
   }
 })
+
 .then(res => res.json())
 
 .then(data => {
