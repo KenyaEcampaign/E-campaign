@@ -943,7 +943,58 @@ app.post('/ground-repost', async (req, res) => {
 
   res.json({ message: 'Reposted' });
 });
+// SUBMIT FEEDBACK
+app.post("/feedback", async (req, res) => {
 
+  const { name, contact, category, message } = req.body;
+
+  if (!message) {
+    return res.status(400).json({
+      error: "Message is required"
+    });
+  }
+
+  const { error } = await supabase
+    .from("feedback")
+    .insert([
+      {
+        name,
+        contact,
+        category,
+        message
+      }
+    ]);
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message
+    });
+  }
+
+  res.json({
+    success: true
+  });
+
+});
+
+
+// ADMIN VIEW FEEDBACK
+app.get("/admin/feedback", async (req, res) => {
+
+  const { data, error } = await supabase
+    .from("feedback")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message
+    });
+  }
+
+  res.json(data);
+
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
